@@ -24,11 +24,12 @@ def load_latest_model():
     model_filename = f"model-{model_timestamp}.pkl"
     vectorizer_filename = f"bow-{vectorizer_timestamp}.pkl"
 
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    os.makedirs(VECTORIZER_DIR, exist_ok=True)
+    os.makedirs("tmp", exist_ok=True)
+    os.makedirs(os.path.join("tmp", MODEL_DIR), exist_ok=True)
+    os.makedirs(os.path.join("tmp", VECTORIZER_DIR), exist_ok=True)
 
-    model_path = os.path.join(MODEL_DIR, model_filename)
-    vectorizer_path = os.path.join(VECTORIZER_DIR, vectorizer_filename)
+    model_path = os.path.join("tmp", MODEL_DIR, model_filename)
+    vectorizer_path = os.path.join("tmp", VECTORIZER_DIR, vectorizer_filename)
 
     if not os.path.exists(model_path):
         print("Downloading model...")
@@ -41,10 +42,9 @@ def load_latest_model():
     print(f"Loaded model: {model_path}")
     print(f"Loaded vectorizer: {vectorizer_path}")
 
-    # model = load(model_path)
-    # vectorizer = load(vectorizer_path)
-    # return model, vectorizer
-    return (True, True)
+    model = load(model_path)
+    vectorizer = load(vectorizer_path)
+    return model, vectorizer
 
 if __name__ == "__main__":
     load_latest_model()
