@@ -1,0 +1,40 @@
+name: Bump Patch Version (Pre-release)
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+
+jobs:
+  bump:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull current version
+        run: |
+          git fetch origin main
+          git checkout main
+          VERSION=$(cat VERSION | sed 's/^v//')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          NEW_PATCH=$((PATCH + 1))
+          echo "v$MAJOR.$MINOR.${NEW_PATCH}-pre" > VERSION
+          echo "New version: v$MAJOR.$MINOR.${NEW_PATCH}-pre"
+
+      - name: Commit and push version bump
+        run: |
+          git add VERSION
+          git commit -m "Bump to v$MAJOR.$MINOR.${NEW_PATCH}-pre after release"
+          git push origin main
+
