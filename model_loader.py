@@ -44,7 +44,7 @@ def load_latest_model():
 
     model = load(model_path)
     vectorizer = load(vectorizer_path)
-    return model, vectorizer
+    return model, vectorizer, model_timestamp
 
 if __name__ == "__main__":
     load_latest_model()

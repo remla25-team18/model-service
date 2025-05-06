@@ -5,7 +5,7 @@ from model_loader import load_latest_model
 app = Flask(__name__)
 
 # Load latest model and vectorizer on startup
-model, vectorizer = load_latest_model()
+model, vectorizer, version = load_latest_model()
 
 @app.route("/test", methods=["GET"])
 def test():
@@ -18,7 +18,7 @@ def predict():
         return jsonify({"error": "Missing 'text' in request body"}), 400
 
     prediction = predict_sentiment(data["text"], model, vectorizer)
-    return jsonify({"prediction": int(prediction)}), 200
+    return jsonify({"prediction": int(prediction), "version": str(version)}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050)
