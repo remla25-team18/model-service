@@ -1,6 +1,8 @@
+import os
 from flask import Flask, request, jsonify
 from predict import predict_sentiment
 from model_loader import load_latest_model
+from config import MODEL_SERVICE_PORT
 
 app = Flask(__name__)
 
@@ -21,4 +23,5 @@ def predict():
     return jsonify({"prediction": int(prediction), "version": str(version)}), 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050)
+    port = MODEL_SERVICE_PORT
+    app.run(host="0.0.0.0", port=port)
