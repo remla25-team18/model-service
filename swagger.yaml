@@ -1,0 +1,66 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Model Prediction API"
+  description: "API for testing and predicting sentiment using a pre-trained model."
+
+host: "localhost:5050"
+basePath: "/"
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /test:
+    get:
+      summary: "Health check"
+      description: "Checks if the model-service is running."
+      responses:
+        200:
+          description: "Model-service is running"
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "Model-service is running"
+
+  /predict:
+    post:
+      summary: "Get sentiment prediction"
+      description: "Returns a binary sentiment prediction (e.g., 0 or 1) for the provided text."
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - text
+            properties:
+              text:
+                type: string
+                example: "This is a great product!"
+              version:
+                type: string
+                example: "20250505"
+      responses:
+        200:
+          description: "Prediction returned successfully"
+          schema:
+            type: object
+            properties:
+              prediction:
+                type: integer
+                example: 1
+        400:
+          description: "Invalid request (missing 'text' in body)"
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Missing 'text' in request body"
