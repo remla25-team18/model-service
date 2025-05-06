@@ -27,13 +27,15 @@ jobs:
         run: |
           IMG="ghcr.io/${{ github.repository }}"
           IMG=${IMG@L}
-          docker build -t $IMG:${steps.get_tag.output.VERSION} .
+          VERSION=${steps.get_tag.output.VERSION}
+          docker build -t $IMG:$VERSION .
 
       - name: Push Docker images
         run: |
           IMG="ghcr.io/${{ github.repository }}"
           IMG=${IMG@L}
-          docker push $IMG:${steps.get_tag.output.VERSION}
+          VERSION=${steps.get_tag.output.VERSION}
+          docker push $IMG:$VERSION
 
       - name: Update tag
         run: |
