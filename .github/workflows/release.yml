@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    if: github.event.base_ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
+
+      - name: Extract version from tag
+        id: get_tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build and tag Docker image
+        run: |
+          IMG="ghcr.io/${{ github.repository }}"
+          IMG=${IMG@L}
+          docker build -t $IMG:${steps.get_tag.output.VERSION} .
+
+      - name: Push Docker images
+        run: |
+          IMG="ghcr.io/${{ github.repository }}"
+          IMG=${IMG@L}
+          docker push $IMG:${steps.get_tag.output.VERSION}
+
+      - name: Update tag
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${steps.get_tag.output.VERSION}"
+          NEW_PATCH=$((PATCH + 1))
+          echo "v$MAJOR.$MINOR.${NEW_PATCH}-pre" > VERSION
