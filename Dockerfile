@@ -11,6 +11,6 @@ COPY . /app
 
 RUN pip install -r requirements.txt
 
-EXPOSE ${MODEL_SERVICE_PORT}
+EXPOSE 5050
 
 CMD ["python", "app.py"]
