@@ -1,6 +1,8 @@
+import os
 from flask import Flask, request, jsonify
 from predict import predict_sentiment
 from model_loader import load_latest_model
+from config import MODEL_SERVICE_PORT
 
 def get_current_version():
     try:
@@ -30,6 +32,7 @@ version = get_current_version()
 def test():
     return jsonify({"status": "Model-service is running"}), 200
 
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
@@ -38,10 +41,15 @@ def predict():
 
     prediction = predict_sentiment(data["text"], model, vectorizer)
     return jsonify({
-        "prediction": int(prediction), 
-        "model_version": str(model_version),
-        "module_version": version or "No version found:("
+        "prediction": int(prediction)
         }), 200
 
+
+@app.route("/version", methods=["GET"])
+def get_version():
+    return jsonify({"version": version}), 200
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050)
+    port = MODEL_SERVICE_PORT
+    app.run(host="0.0.0.0", port=port)
