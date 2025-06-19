@@ -4,6 +4,7 @@ from predict import predict_sentiment
 from model_loader import load_latest_model
 from config import MODEL_SERVICE_PORT
 
+
 def get_current_version():
     try:
         version_file = open("VERSION", "r")
@@ -22,17 +23,57 @@ def get_current_version():
     except FileNotFoundError:
         return None
 
+
 app = Flask(__name__)
 
 # Load latest model and vectorizer on startup
 model, vectorizer, model_version = load_latest_model()
 version = get_current_version()
 
+
+# ---
+# summary: Health check for the model service
+# description: Returns 200 if the model service is running.
+# operationId: getTestStatus
+# responses:
+#   200:
+#     description: Service is up and running
 @app.route("/test", methods=["GET"])
 def test():
     return jsonify({"status": "Model-service is running"}), 200
 
 
+# ---
+# summary: Predict sentiment from input text
+# description: Returns 0 or 1 indicating the sentiment class (e.g., negative or positive).
+# operationId: postPredictSentiment
+# parameters:
+#   - name: text
+#     in: body
+#     description: The input text to classify
+#     required: true
+#     schema:
+#       type: object
+#       required:
+#         - text
+#       properties:
+#         text:
+#           type: string
+# responses:
+#   200:
+#     description: Successful prediction
+#     schema:
+#       type: object
+#       properties:
+#         prediction:
+#           type: integer
+#   400:
+#     description: Missing text in input
+#     schema:
+#       type: object
+#       properties:
+#         error:
+#           type: string
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
@@ -40,11 +81,21 @@ def predict():
         return jsonify({"error": "Missing 'text' in request body"}), 400
 
     prediction = predict_sentiment(data["text"], model, vectorizer)
-    return jsonify({
-        "prediction": int(prediction)
-        }), 200
+    return jsonify({"prediction": int(prediction)}), 200
 
 
+# ---
+# summary: Get the current model version
+# description: Returns the semantic version of the currently loaded model.
+# operationId: getModelVersion
+# responses:
+#   200:
+#     description: Version string
+#     schema:
+#       type: object
+#       properties:
+#         version:
+#           type: string
 @app.route("/version", methods=["GET"])
 def get_version():
     return jsonify({"version": version}), 200
